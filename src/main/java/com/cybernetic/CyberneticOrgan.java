@@ -15,7 +15,7 @@ public class CyberneticOrgan {
     }
 
     public String getDetails() {
-        return "ID: " + id + ", Model: " + model + ", Functionality: " + functionality + ", Compatibility: " + compatibility;
+        return "ID: " + id + " | Model: " + model + " | Functionality: " + functionality + " | Compatibility: " + compatibility;
     }
 
 
@@ -26,7 +26,7 @@ public class CyberneticOrgan {
 
     @Override
     public String toString() {
-        return "ID: " + id + ", Model: " + model + ", Functionality: " + functionality + ", Compatibility: " + compatibility;
+        return "ID: " + id + " | Model: " + model + " | Functionality: " + functionality + " | Compatibility: " + compatibility;
     }
 
 }

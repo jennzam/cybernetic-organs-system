@@ -1,4 +1,13 @@
 package com.cybernetic;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
@@ -10,16 +19,16 @@ public class OrganInventory {
         inventory = new ArrayList<>();
     }
 
-    public String addOrgan(CyberneticOrgan organ){
+    public String addOrgan(CyberneticOrgan organ) {
         inventory.add(organ);
         return "Added " + organ.model + " to inventory.";
     }
 
-    public ArrayList<CyberneticOrgan> getOrganList(){
+    public ArrayList<CyberneticOrgan> getOrganList() {
         return inventory;
     }
 
-    public ArrayList<CyberneticOrgan> sortOrgansByModel(){
+    public ArrayList<CyberneticOrgan> sortOrgansByModel() {
         Collections.sort(inventory, new Comparator<CyberneticOrgan>() {
             @Override
             public int compare(CyberneticOrgan o1, CyberneticOrgan o2) {
@@ -29,16 +38,16 @@ public class OrganInventory {
         return inventory;
     }
 
-   public String removeOrgan(String model){
-        for (CyberneticOrgan organ : inventory){
-            if(organ.model.equals(model)){
+    public String removeOrgan(String model) {
+        for (CyberneticOrgan organ : inventory) {
+            if (organ.model.equals(model)) {
                 inventory.remove(organ);
                 return "Organ " + model + " removed.";
             }
         }
 
         return "Organ " + model + " not found.";
-   }
+    }
 
     @Override
     public String toString() {
@@ -87,5 +96,87 @@ public class OrganInventory {
         return str.toString();
     }
 
+    public void loadOrgansCSV(String fileName) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        try (InputStream inputStream = classLoader.getResourceAsStream(fileName);
+            CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream))) {
+
+                if(csvReader ==null)
+
+                {
+                    throw new IOException("Resource not found: " + fileName);
+                }
+
+                String[] nextLine;
+                csvReader.readNext();
+
+                while((nextLine =csvReader.readNext())!=null)
+
+                {
+                    if (nextLine.length == 4) {
+                        CyberneticOrgan organ = new CyberneticOrgan(
+                                UUID.randomUUID().toString(),
+                                nextLine[0].trim(),
+                                nextLine[1].trim(),
+                                nextLine[2].trim()
+                        );
+                        addOrgan(organ);
+                    }
+                }
+
+            } catch (IOException e){
+                e.printStackTrace();
+            } catch (CsvValidationException e) {
+                e.printStackTrace();
+        }
+
+
+    }
+
+    public void removeDuplicateOrgans(){
+        ArrayList<CyberneticOrgan> uniqueOrgans = new ArrayList<>();
+        removeDuplicatesHelper(0, uniqueOrgans);
+        inventory = uniqueOrgans;
+    }
+
+    private void removeDuplicatesHelper(int startIndex, ArrayList<CyberneticOrgan> uniqueOrgans) {
+        if (startIndex >= inventory.size()){
+            return;
+        }
+
+        CyberneticOrgan currentOrgan = inventory.get(startIndex);
+        boolean isDuplicate = false;
+
+        for (CyberneticOrgan organ : uniqueOrgans) {
+            if (organ.model.equals(organ.model)) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        if (!isDuplicate) {
+            uniqueOrgans.add(currentOrgan);
+        }
+        removeDuplicatesHelper(startIndex + 1, uniqueOrgans);
+    }
+
+    public CyberneticOrgan findOrganByModel(String model) {
+        return findOrganByModelHelper(0, model);
+    }
+
+    public CyberneticOrgan findOrganByModelHelper(int startIndex, String model) {
+        if (startIndex >= inventory.size()) {
+            return null;
+        }
+
+        CyberneticOrgan currentOrgan = inventory.get(startIndex);
+        if (currentOrgan.model.equals(model)) {
+            return currentOrgan;
+        }
+        return findOrganByModelHelper(startIndex + 1, model);
+    }
 
 }
+
+
+
+
