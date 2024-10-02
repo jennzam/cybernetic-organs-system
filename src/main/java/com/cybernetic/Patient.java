@@ -6,7 +6,7 @@ public class Patient {
     String name;
     String age;
     String medicalHistory;
-    CyberneticOrgan[] installedOrgans = new CyberneticOrgan[5]; //array list
+    CyberneticOrgan[] installedOrgans = new CyberneticOrgan[5]; 
     int organCount = 0;
 
     public Patient(String name, String age, String medicalHistory) {
