@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.List;
 
 public class OrganInventory {
     ArrayList<CyberneticOrgan> inventory;
@@ -57,7 +58,10 @@ public class OrganInventory {
             str.append("No organs in inventory.\n");
         } else {
             for (CyberneticOrgan organ : inventory) {
-                str.append("- ").append(organ.model).append(": ").append(organ.functionality).append("\n");
+                str.append("Name: ").append(organ.id).append("\n");
+                str.append("Model: ").append(organ.model).append("\n");
+                str.append("Compatibility: ").append(organ.compatibility).append("\n");
+                str.append("\n");
             }
         }
         return str.toString();
@@ -99,48 +103,45 @@ public class OrganInventory {
     public void loadOrgansCSV(String fileName) {
         ClassLoader classLoader = getClass().getClassLoader();
         try (InputStream inputStream = classLoader.getResourceAsStream(fileName);
-            CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream))) {
+             CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream))) {
 
-                if(csvReader ==null)
+            if (csvReader == null) {
+                throw new IOException("Resource not found: " + fileName);
+            }
 
-                {
-                    throw new IOException("Resource not found: " + fileName);
+            String[] nextLine;
+            csvReader.readNext();
+
+            while ((nextLine = csvReader.readNext()) != null) {
+                if (nextLine.length == 4) {
+                    CyberneticOrgan organ = new CyberneticOrgan(
+
+                            nextLine[0].trim(),
+                            nextLine[1].trim(),
+                            nextLine[2].trim(),
+                            nextLine[3].trim()
+                    );
+                    addOrgan(organ);
                 }
+            }
 
-                String[] nextLine;
-                csvReader.readNext();
-
-                while((nextLine =csvReader.readNext())!=null)
-
-                {
-                    if (nextLine.length == 4) {
-                        CyberneticOrgan organ = new CyberneticOrgan(
-                                UUID.randomUUID().toString(),
-                                nextLine[0].trim(),
-                                nextLine[1].trim(),
-                                nextLine[2].trim()
-                        );
-                        addOrgan(organ);
-                    }
-                }
-
-            } catch (IOException e){
-                e.printStackTrace();
-            } catch (CsvValidationException e) {
-                e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CsvValidationException e) {
+            e.printStackTrace();
         }
 
 
     }
 
-    public void removeDuplicateOrgans(){
+    public void removeDuplicateOrgans() {
         ArrayList<CyberneticOrgan> uniqueOrgans = new ArrayList<>();
         removeDuplicatesHelper(0, uniqueOrgans);
         inventory = uniqueOrgans;
     }
 
     private void removeDuplicatesHelper(int startIndex, ArrayList<CyberneticOrgan> uniqueOrgans) {
-        if (startIndex >= inventory.size()){
+        if (startIndex >= inventory.size()) {
             return;
         }
 
@@ -173,6 +174,77 @@ public class OrganInventory {
             return currentOrgan;
         }
         return findOrganByModelHelper(startIndex + 1, model);
+    }
+
+    public List<CyberneticOrgan> sortOrganByNameModelAndCompatibilityUsingBuiltInSort() {
+        Collections.sort(inventory, new Comparator<CyberneticOrgan>() {
+            @Override
+            public int compare(CyberneticOrgan o1, CyberneticOrgan o2) {
+                int nameCompare = o1.id.compareTo(o2.id);
+                if (nameCompare != 0) {
+                    return nameCompare;
+                }
+
+                int modelCompare = o1.model.compareTo(o2.model);
+                if (modelCompare != 0) {
+                    return modelCompare;
+                }
+                return o1.compatibility.compareTo(o2.compatibility);
+            }
+        });
+        return inventory;
+        //throw new UnsupportedOperationException("N/A");
+    }
+
+
+    public List<CyberneticOrgan> quickSortOrganByNameModelAndCompatibility(List<CyberneticOrgan> unmodifiableOrganList){
+        List<CyberneticOrgan> organList = new ArrayList<>(unmodifiableOrganList);
+        quickSort(organList, 0, organList.size() - 1);
+        return organList;
+        //throw new UnsupportedOperationException("N/A");
+    }
+
+    public void quickSort(List<CyberneticOrgan> organList, int l, int h) {
+        if(l < h){
+            int pivotIndex = partition(organList, l, h);
+            quickSort(organList, l, pivotIndex - 1);
+            quickSort(organList, pivotIndex + 1, h);
+        }
+    }
+
+    public int partition(List<CyberneticOrgan> organList, int l, int h) {
+        CyberneticOrgan pivotOrgan = organList.get(h);
+        int i = l - 1;
+
+        for(int j = l; j < h; j++){
+            //int comparison = compareOrgans(organList.get(j), pivotOrgan);
+            if (compareOrgans(organList.get(j), pivotOrgan) < 0){
+                i++;
+                swap(organList, i, j);
+            }
+        }
+        swap(organList, i + 1, h);
+        return i + 1;
+    }
+
+    public int compareOrgans(CyberneticOrgan o1, CyberneticOrgan o2) {
+        int nameCompare = o1.id.compareTo(o2.id);
+        if (nameCompare != 0) {
+            return nameCompare;
+        }
+
+        int modelCompare = o1.model.compareTo(o2.model);
+        if (modelCompare != 0) {
+            return modelCompare;
+        }
+
+        return o1.compatibility.compareTo(o2.compatibility);
+    }
+
+    public void swap(List<CyberneticOrgan> organList, int i, int j) {
+        CyberneticOrgan temp = organList.get(i);
+        organList.set(i, organList.get(j));
+        organList.set(j, temp);
     }
 
 }
