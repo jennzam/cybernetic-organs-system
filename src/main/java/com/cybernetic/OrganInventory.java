@@ -193,7 +193,7 @@ public class OrganInventory {
             }
         });
         return inventory;
-        //throw new UnsupportedOperationException("N/A");
+        
     }
 
 
@@ -201,7 +201,7 @@ public class OrganInventory {
         List<CyberneticOrgan> organList = new ArrayList<>(unmodifiableOrganList);
         quickSort(organList, 0, organList.size() - 1);
         return organList;
-        //throw new UnsupportedOperationException("N/A");
+        
     }
 
     public void quickSort(List<CyberneticOrgan> organList, int l, int h) {
@@ -217,7 +217,7 @@ public class OrganInventory {
         int i = l - 1;
 
         for(int j = l; j < h; j++){
-            //int comparison = compareOrgans(organList.get(j), pivotOrgan);
+            
             if (compareOrgans(organList.get(j), pivotOrgan) < 0){
                 i++;
                 swap(organList, i, j);
