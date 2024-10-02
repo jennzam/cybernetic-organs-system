@@ -23,7 +23,7 @@ public class Main {
             List<CyberneticOrgan> builtInSortedOrgans = organInventory.sortOrganByNameModelAndCompatibilityUsingBuiltInSort();
 
             System.out.println("\nAfter Built-In Sorting: ");
-            for(CyberneticOrgan organ : builtInSortedOrgans) {
+            for (CyberneticOrgan organ : builtInSortedOrgans) {
                 System.out.println(organ);
             }
 
